@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:gravity="center_horizontal">  <!-- Center the content horizontally -->
+
+    <!-- Header TextView with bold style -->
+    <TextView
+        android:id="@+id/headerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOTIFICATION PROJECT BY PALLAVI"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />  <!-- Margin to separate from next views -->
+
+    <EditText
+        android:id="@+id/messageInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter message"
+        android:visibility="invisible" />  <!-- Set visibility to invisible -->
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Message"
+        android:visibility="invisible" /> <!-- Set visibility to invisible -->
+
+    <ListView
+        android:id="@+id/bluetoothDeviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- About IoT section -->
+    <TextView
+        android:id="@+id/projectDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="About IoT: The Internet of Things (IoT) refers to the interconnection of everyday devices through the internet, enabling them to collect and share data. IoT is revolutionizing industries, from smart homes to healthcare and manufacturing."
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:textColor="#333333" />
+
+</LinearLayout>
