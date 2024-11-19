@@ -23,11 +23,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import android.telecom.TelecomManager;
+import android.content.Context;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -169,6 +172,29 @@ public class MainActivity extends AppCompatActivity {
                 bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID_SPP);
                 bluetoothSocket.connect();
 
+                new Thread(() -> {
+                    try {
+                        InputStream inputStream = bluetoothSocket.getInputStream();
+                        byte[] buffer = new byte[1024];
+                        int bytes;
+
+                        while ((bytes = inputStream.read(buffer)) != -1) {
+                            String message = new String(buffer, 0, bytes).trim();
+                            Log.d(TAG, "Received message: " + message);
+
+                            // Handle messages for answering or rejecting calls
+                            if ("ANSWER_CALL".equals(message)) {
+                                acceptCall();
+                            } else if ("REJECT_CALL".equals(message)) {
+                                endCall();
+                            }
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error reading from Bluetooth socket", e);
+                    }
+                }).start();
+
+
                 // Share the Bluetooth socket via BluetoothManager
                 BluetoothManager.getInstance().setBluetoothSocket(bluetoothSocket);
 
@@ -214,5 +240,42 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error closing socket", e);
         }
     }
+    private void acceptCall() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API level 26 and above
+            TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            if (telecomManager != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    telecomManager.acceptRingingCall();
+                    runOnUiThread(() -> Toast.makeText(this, "Call Answered", Toast.LENGTH_SHORT).show());
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Permission denied to answer call", e);
+                }
+            } else {
+                // Handle the case where permission isn't granted or telecom manager is unavailable
+                runOnUiThread(() -> Toast.makeText(this, "Permission denied or TelecomManager unavailable", Toast.LENGTH_SHORT).show());
+            }
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Answering calls is not supported on this device", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void endCall() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // API level 28 and above
+            TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            if (telecomManager != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    telecomManager.endCall();
+                    Toast.makeText(this, "Call Ended", Toast.LENGTH_SHORT).show();
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Permission denied to end call", e);
+                }
+            } else {
+                Toast.makeText(this, "TelecomManager unavailable or permission denied", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Ending calls is not supported on this device", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 }
