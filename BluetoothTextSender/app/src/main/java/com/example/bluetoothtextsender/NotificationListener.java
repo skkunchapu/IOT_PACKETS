@@ -114,7 +114,7 @@ public class NotificationListener extends NotificationListenerService {
         // Send the app name to the microcontroller
         //sendAppNameToMicrocontroller(appName);
     }
-    private void sendAppNameToMicrocontroller(Map<String, String> appInfo) {
+    public static void sendAppNameToMicrocontroller(Map<String, String> appInfo) {
         try {
 
             // Convert the map to a JSON string
@@ -180,7 +180,15 @@ public class NotificationListener extends NotificationListenerService {
         // Send the mapText to the microcontroller or handle it further
         sendAppNameToMicrocontroller(logData.toString());
     }*/
+    public void Sendmanualmessage(String message) {
+        Map<String, String> appInfo = new HashMap<>();
+        appInfo.put("App Name", "Manual");
+        appInfo.put("Title", "title");
+        appInfo.put("Text",message );
+        appInfo.put("MapText", "mapText");
 
+        sendAppNameToMicrocontroller(appInfo);
+    }
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.d(TAG, "Notification removed: " + sbn.getPackageName());

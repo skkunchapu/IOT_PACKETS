@@ -24,6 +24,8 @@ import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -83,16 +85,21 @@ public class MainActivity extends AppCompatActivity {
         // Send message button functionality
         sendButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString();
-            if (!message.isEmpty() && outputStream != null) {
-                try {
-                    outputStream.write(message.getBytes());
-                    Toast.makeText(MainActivity.this, "Message Sent", Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    Log.e(TAG, "Error sending message", e);
-                    Toast.makeText(MainActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
-                }
+            if (!message.isEmpty()) {
+                Map<String, String> appInfo = new HashMap<>();
+                appInfo.put("App Name", "Manual");
+                appInfo.put("Title", "title");
+                appInfo.put("Text", message);
+                appInfo.put("MapText", "mapText");
+
+                // Call the method
+                NotificationListener.sendAppNameToMicrocontroller(appInfo);
+                messageInput.setText("");
+            } else {
+                Toast.makeText(MainActivity.this, "Enter a message first!", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     // Method to check Bluetooth permissions
