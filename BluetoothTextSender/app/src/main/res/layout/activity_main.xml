@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:gravity="center_horizontal">  <!-- Center the content horizontally -->
+    android:gravity="center_horizontal"
+    android:background="#F5F5F5">
 
-    <!-- Header TextView with bold style -->
+    <!-- Header Text -->
     <TextView
         android:id="@+id/headerText"
         android:layout_width="wrap_content"
@@ -15,37 +15,85 @@
         android:text="NOTIFICATION PROJECT BY PALLAVI"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />  <!-- Margin to separate from next views -->
+        android:layout_marginBottom="16dp"
+        android:textColor="#3F51B5" />
 
+    <!-- Message Input Field -->
     <EditText
         android:id="@+id/messageInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter message"
-        android:visibility="visible" />  <!-- Set visibility to invisible -->
+        android:visibility="visible"
+        android:layout_marginBottom="12dp"
+        android:padding="12dp"
+        android:background="@drawable/input_field_background" />
 
+    <!-- Send Button -->
     <Button
         android:id="@+id/sendButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Send Message"
-        android:visibility="visible" /> <!-- Set visibility to invisible -->
+        android:visibility="visible"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#3F51B5"
+        android:textColor="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginTop="8dp" />
+
+    <!-- Bluetooth Devices List -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Available Bluetooth Devices"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:textColor="#333333" />
 
     <ListView
         android:id="@+id/bluetoothDeviceList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:divider="#BDBDBD"
+        android:dividerHeight="1dp"
+        android:layout_marginBottom="16dp" />
 
-    <!-- About IoT section -->
-    <TextView
-        android:id="@+id/projectDescription"
+    <!-- About IoT Section -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="About IoT: The Internet of Things (IoT) refers to the interconnection of everyday devices through the internet, enabling them to collect and share data. IoT is revolutionizing industries, from smart homes to healthcare and manufacturing."
-        android:textSize="16sp"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:textColor="#333333" />
+        android:layout_marginTop="16dp">
+        <TextView
+            android:id="@+id/projectDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Project Features:\n1. Capture all notifications from the mobile phone and send them to a microcontroller.\n2. Use LEDs to indicate notifications based on their type.\n3. Answer incoming calls using a dedicated button.\n4. This project’s techniques and features can be utilized in various applications. Currently, it is implemented in a smartphone pouch but can be extended for use in vehicle dashboards."
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="@drawable/card_background"
+            android:textColor="#333333" />
+    </ScrollView>
 
+
+
+    <!-- Logs Section -->
+    <!-- Uncomment if needed -->
+    <!--<ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/card_background">
+        <TextView
+            android:id="@+id/logsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logs will be displayed here. Add log entries to see them."
+            android:textSize="14sp"
+            android:padding="8dp"
+            android:scrollbars="vertical"
+            android:textColor="#666666" />
+    </ScrollView>-->
 </LinearLayout>

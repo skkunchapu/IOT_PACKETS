@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText messageInput;
     private Button sendButton;
     private ListView bluetoothDeviceList;
+    //private TextView logsTextView;  // New TextView for displaying logs
 
     private static final UUID UUID_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         messageInput = findViewById(R.id.messageInput);
         sendButton = findViewById(R.id.sendButton);
         bluetoothDeviceList = findViewById(R.id.bluetoothDeviceList);
+        //logsTextView = findViewById(R.id.logsTextView);  // Initialize logsTextView
 
         // Set up Bluetooth adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -104,7 +107,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
+    /*private void logMessage(String message) {
+        String currentText = logsTextView.getText().toString();
+        logsTextView.setText(currentText + "\n" + message);
+        // Scroll to the bottom of the log
+        logsTextView.scrollTo(0, logsTextView.getHeight());
+    }*/
     // Method to check Bluetooth permissions
     private void checkBluetoothPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -146,24 +154,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Connect to the selected Bluetooth device with permission check
-    /*private void connectToDevice(String deviceAddress) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED ||
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
-            try {
-                bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID_SPP);
-                bluetoothSocket.connect();
-                outputStream = bluetoothSocket.getOutputStream();
-                Toast.makeText(this, "Connected to " + device.getName(), Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Log.e(TAG, "Connection failed", e);
-                Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Bluetooth permissions not granted", Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
     private void connectToDevice(String deviceAddress) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED ||
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
@@ -180,6 +170,12 @@ public class MainActivity extends AppCompatActivity {
 
                         while ((bytes = inputStream.read(buffer)) != -1) {
                             String message = new String(buffer, 0, bytes).trim();
+
+                            // Check if the message is null or empty
+                            if (message == null || message.isEmpty()) {
+                                Log.d(TAG, "Received an empty or null message");
+                                continue;  // Skip this iteration and wait for the next message
+                            }
                             Log.d(TAG, "Received message: " + message);
 
                             // Handle messages for answering or rejecting calls
@@ -187,13 +183,14 @@ public class MainActivity extends AppCompatActivity {
                                 acceptCall();
                             } else if ("REJECT_CALL".equals(message)) {
                                 endCall();
+                            } else {
+                                Log.d(TAG, "Unhandled message: " + message);
                             }
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "Error reading from Bluetooth socket", e);
                     }
                 }).start();
-
 
                 // Share the Bluetooth socket via BluetoothManager
                 BluetoothManager.getInstance().setBluetoothSocket(bluetoothSocket);
@@ -207,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Bluetooth permissions not granted", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     // Check if Notification Access is enabled
     private void requestNotificationAccess() {
@@ -240,42 +236,36 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error closing socket", e);
         }
     }
+
     private void acceptCall() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API level 26 and above
             TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                try {
-                    telecomManager.acceptRingingCall();
-                    runOnUiThread(() -> Toast.makeText(this, "Call Answered", Toast.LENGTH_SHORT).show());
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Permission denied to answer call", e);
-                }
+                telecomManager.acceptRingingCall();
+                Log.d(TAG, "Call answered");
             } else {
-                // Handle the case where permission isn't granted or telecom manager is unavailable
-                runOnUiThread(() -> Toast.makeText(this, "Permission denied or TelecomManager unavailable", Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Permission to answer calls is not granted or TelecomManager is unavailable.");
             }
-        } else {
-            runOnUiThread(() -> Toast.makeText(this, "Answering calls is not supported on this device", Toast.LENGTH_SHORT).show());
         }
     }
 
     private void endCall() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // API level 28 and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API level 26 and above
             TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-            if (telecomManager != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                try {
+            if (telecomManager != null) {
+                // Check if the MODIFY_PHONE_STATE permission is granted (this will only work for system apps)
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                     telecomManager.endCall();
-                    Toast.makeText(this, "Call Ended", Toast.LENGTH_SHORT).show();
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Permission denied to end call", e);
+                    Log.d(TAG, "Call ended");
+                } else {
+                    Log.e(TAG, "Permission to modify phone state is not granted.");
                 }
             } else {
-                Toast.makeText(this, "TelecomManager unavailable or permission denied", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "TelecomManager is unavailable.");
             }
         } else {
-            Toast.makeText(this, "Ending calls is not supported on this device", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "API level below 26, ending calls is not supported.");
         }
     }
-
 
 }

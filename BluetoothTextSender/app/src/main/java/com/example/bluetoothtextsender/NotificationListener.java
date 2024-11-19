@@ -109,7 +109,6 @@ public class NotificationListener extends NotificationListenerService {
         appInfo.put("Title", title);
         appInfo.put("Text", text);
         appInfo.put("MapText", mapText);
-
         sendAppNameToMicrocontroller(appInfo);
         // Send the app name to the microcontroller
         //sendAppNameToMicrocontroller(appName);
